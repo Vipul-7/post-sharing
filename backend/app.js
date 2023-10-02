@@ -1,4 +1,6 @@
 const path = require("path");
+const { clearImage } = require("./util/file");
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -11,7 +13,7 @@ const authRoutes = require("./routes/auth");
 const { graphqlHTTP } = require("express-graphql");
 const graphqlScehma = require("./graphql/schema");
 const graphqlResolver = require("./graphql/resolvers");
-const auth = require("./middleware/auth")
+const auth = require("./middleware/auth");
 
 require("dotenv").config();
 
@@ -56,7 +58,26 @@ app.use((req, res, next) => {
 app.use("/feed", feedRoutes);
 app.use("/auth", authRoutes);
 
-app.use(auth)
+app.use(auth);
+app.put("/post-image", (req, res, next) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated!");
+  }
+  if (!req.file) {
+    return res.status(200).json({ message: "No file provided" }); // no file extracted from multer
+  }
+
+  if (req.body.oldPath) {
+    // remove old path if exists
+    clearImage(req.body.oldPath);
+  }
+
+  return res.status(201).json({
+    message: "File stored",
+    filePath: req.file.path.replace("\\", "/"),
+  });
+});
+
 app.use(
   "/graphql",
   graphqlHTTP({
