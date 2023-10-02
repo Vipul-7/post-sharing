@@ -88,17 +88,17 @@ class App extends Component {
         }
         if (resData.errors) {
           console.log("Error!");
-          throw new Error("Could not authenticate!");
+          throw new Error("User login failed!");
         }
         console.log(resData);
         this.setState({
           isAuth: true,
           token: resData.data.login.token,
           authLoading: false,
-          userId: resData.data.login.token,
+          userId: resData.data.login.userId,
         });
-        localStorage.setItem("token", resData.resData.data.login.token);
-        localStorage.setItem("userId", resData.resData.data.login.userId);
+        localStorage.setItem("token", resData.data.login.token);
+        localStorage.setItem("userId", resData.data.login.userId);
         const remainingMilliseconds = 60 * 60 * 1000;
         const expiryDate = new Date(
           new Date().getTime() + remainingMilliseconds
